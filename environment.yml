@@ -1,0 +1,16 @@
+name: sardana-jupyter
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy
+  - notebook
+  - ipywidgets
+  - pytango
+  - click
+  - itango
+  - lxml
+
+  - pip:
+    - --editable=file:///homelocal/zreszela/workspace/taurus
+    - --editable=file:///homelocal/zreszela/workspace/sardana
