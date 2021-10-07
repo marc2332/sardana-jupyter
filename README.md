@@ -1,5 +1,7 @@
 # sardana-jupyter
-Sardana integration into the Jupyter ecosystem
+Sardana integration into the Jupyter ecosystem.
+
+This is still a WIP. For a list of missing features/ideas see TODO.md.
 
 ## Installation
 

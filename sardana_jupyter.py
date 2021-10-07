@@ -1,8 +1,3 @@
-# Macro status
-# Tab completion
-# Input
-#
-
 import ipywidgets as widgets
 from IPython.display import display
 
