@@ -19,12 +19,12 @@ Currently the jupyter extension only instantiate the MacroServer part.
 You will need to start your Pool instance as Tango device server and modify the following
 configuration variables:
 
-- INSTANCE_NAME - name of your jupyter macroserver instance e.g. test, dummy, etc.
+- INSTANCE_NAME - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
 - MACRO_PATH = - path(s) to your macros e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/macros/examples"]
 - RECORDER_PATH = path(s) to your recorders e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/recorders/examples"]
 - POOL_NAMES = pool(s) you would like to connect to e.g. ["Pool_test_1"]
 
 ```
 conda activate sardana-jupyter
-jupyter notebook --config=ipython_config.py examples/macros.ipynb
+jupyter notebook --config=ipython_config.py example_macros.ipynb
 ```
