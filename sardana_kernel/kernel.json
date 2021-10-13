@@ -1,0 +1,13 @@
+{
+  "display_name": "Sardana Kernel",
+  "name": "sardana-kernel",
+  "argv": [
+    "python",
+    "-m",
+    "ipykernel",
+    "-f",
+    "{connection_file}",
+    "--InteractiveShellApp.extensions=sardana_ipython"
+  ],
+  "language": "python"
+}

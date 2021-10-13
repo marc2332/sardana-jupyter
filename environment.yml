@@ -10,7 +10,9 @@ dependencies:
   - click
   - itango
   - lxml
-
+  - pyyaml
+  - ipykernel
   - pip:
-    - --editable=file:///homelocal/zreszela/workspace/taurus
-    - --editable=file:///homelocal/zreszela/workspace/sardana
+    - --editable=./
+    - --editable=file:///home/mespin/Work/zreszela-taurus
+    - --editable=file:///home/mespin/Work/zreszela-sardana
