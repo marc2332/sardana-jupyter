@@ -5,16 +5,16 @@ from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic
 from sardana.spock.spockms import split_macro_parameters
 
-INSTANCE_NAME = "dummy"
-MACRO_PATH = ["/homelocal/zreszela/workspace/sardana/src/sardana/macroserver/macros/examples"]
-RECORDER_PATH = ["/homelocal/zreszela/workspace/sardana/src/sardana/macroserver/recorders/examples"]
-POOL_NAMES = ["Pool_zreszela_1"]
-
+import os
+import yaml
+import logging
 
 ms = None
 door = None
 progress = None
 output = None
+logger = logging.getLogger()
+
 
 def on_elements_changed(value):
     elements = value["new"]
@@ -41,8 +41,8 @@ def on_elements_changed(value):
 
 
 def ms_cb(source, type_, value):
-     if type_.name == "ElementsChanged":
-         on_elements_changed(value)
+    if type_.name == "ElementsChanged":
+        on_elements_changed(value)
 
 
 def on_macro_status(value):
@@ -51,7 +51,7 @@ def on_macro_status(value):
     step = macro_status["step"]
     progress.min = min
     progress.max = max
-    progress.value=step
+    progress.value = step
 
 
 def on_record_data(value):
@@ -72,25 +72,40 @@ def door_cb(source, type_, value):
         on_record_data(value)
 
 
+def load_conf_from_file():
+    """
+    Retrieve the configuration 
+    """
+    path = os.getenv("SARDANA_JUPYTER_CONF")
+    file = open(path)
+    file_content = file.read()
+    conf = yaml.load(file_content, Loader=yaml.FullLoader)
+    print(conf)
+    return conf
+
+
 def load_ipython_extension(ipython):
-    # The `ipython` argument is the currently active `InteractiveShell`
-    # instance, which can be used in any way. This allows you to register
-    # new magics or aliases, for example.
-    ms_full_name = ms_name = "{}_ms".format(INSTANCE_NAME)
-    door_full_name = door_name = "{}_door".format(INSTANCE_NAME)
+    """
+    Extension initialization
+    """
+
+    conf = load_conf_from_file()
+
+    ms_full_name = ms_name = "{}_ms".format(conf['name'])
+    door_full_name = door_name = "{}_door".format(conf['name'])
+
     global ms
     ms = MacroServer(ms_full_name, ms_name)
     ms.add_listener(ms_cb)
-    ms.set_macro_path(MACRO_PATH)
-    ms.set_recorder_path(RECORDER_PATH)
-    ms.set_pool_names(POOL_NAMES)
-    ms.set_environment_db("/tmp/{}-jupyter-ms.properties".format(INSTANCE_NAME))
+    ms.set_macro_path(conf['macroPath'])
+    ms.set_recorder_path(conf['recordersPath'])
+    ms.set_pool_names(conf['poolNames'])
+    ms.set_environment_db("/tmp/{}-jupyter-ms.properties".format(conf['name']))
     global door
     door = ms.create_door(full_name=door_full_name, name=door_name)
     door.add_listener(door_cb)
+    logger.info("Launched Sardana Extension")
 
 
 def unload_ipython_extension(ipython):
-    # If you want your extension to be unloadable, put that logic here.
     pass
-

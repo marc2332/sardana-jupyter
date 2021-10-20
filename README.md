@@ -11,6 +11,10 @@ local taurus and sardana clones.
 
 ```
 conda env create -f environment.yml
+
+conda activate sardana-jupyter
+
+./scripts/setup.bash
 ```
 
 **IMPORTANT**: sardana requires features available in the reszelaz/jupyter-ms branch
@@ -18,15 +22,21 @@ conda env create -f environment.yml
 ## Start the Jupyter notebook
 
 Currently the jupyter extension only instantiate the MacroServer part.
-You will need to start your Pool instance as Tango device server and modify the following
-configuration variables:
-
-- INSTANCE_NAME - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
-- MACRO_PATH = - path(s) to your macros e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/macros/examples"]
-- RECORDER_PATH = path(s) to your recorders e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/recorders/examples"]
-- POOL_NAMES = pool(s) you would like to connect to e.g. ["Pool_test_1"]
+You will need to start your Pool instance as Tango device server and configure the following
+configuration variables in your `sardana-jupyter.yml`:
 
 ```
-conda activate sardana-jupyter
-jupyter notebook --config=ipython_config.py example_macros.ipynb
+cp ./examples/sardana-jupyter.yml $HOME/sardana-jupyter.yml
 ```
+
+- name - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
+- poolNames = pool(s) you would like to connect to e.g. ["Pool_test_1"]
+- macroPath = - path(s) to your macros e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/macros/examples"]
+- recordersPath = path(s) to your recorders e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/recorders/examples"]
+
+```
+jupyter notebook examples/example_macros.ipynb  --NotebookApp.kernel_manager_class=notebook.services.kernels.kernelmanager.AsyncMappingKernelManager
+
+```
+
+And then select the Sardana Kernel.
