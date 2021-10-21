@@ -1,5 +1,5 @@
 name: dummy
 poolNames:
-  - pool/test-jupyter/1
-macroPath: /home/mespin/Work/zreszela-sardana/src/sardana/macroserver/macros
-recordersPath: /home/mespin/Work/zreszela-sardana/src/sardana/macroserver/recorders
+  - Pool_test_1
+macroPath: <path-to-sardana-clone>/src/sardana/macroserver/macros/examples
+recordersPath: <path-to-sardana-clone>/src/sardana/macroserver/recorders/examples
