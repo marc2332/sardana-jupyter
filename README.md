@@ -14,7 +14,7 @@ Run the container:
 sudo docker run -dp 8888:8888 --name jupysar-demo jupysar-demo
 ```
 
-Wait some seconds, open  [localhost:8888](localhost:8888) and select the 'Sardana Kernel' Notebook.
+Wait some seconds, open  [localhost:8888](http://localhost:8888) and select the `Sardana Kernel` Notebook.
 
 ## Manual installation
 
@@ -32,7 +32,7 @@ conda activate sardana-jupyter
 
 **IMPORTANT**: sardana requires features available in the reszelaz/jupyter-ms branch
 
-## Start the Jupyter notebook
+## Start the Jupyter Lab
 
 Currently the jupyter extension only instantiate the MacroServer part.
 You will need to start your Pool instance as Tango device server and configure the following
@@ -52,4 +52,4 @@ export SARDANA_JUPYTER_CONF = $HOME/sardana-jupyter.yml
 jupyter lab examples/example_macros.ipynb
 ```
 
-And then select the Sardana Kernel.
+And then select the `Sardana Kernel` Notebook.
