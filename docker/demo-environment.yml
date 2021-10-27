@@ -15,6 +15,6 @@ dependencies:
   - jupyterlab
   - pip
   - pip:
-    - --editable=./
-    - --editable=file:///home/mespin/Work/zreszela-taurus
-    - --editable=file:///home/mespin/Work/zreszela-sardana
+    - --editable=../
+    - --editable=file:///taurus/
+    - --editable=file:///sardana/
