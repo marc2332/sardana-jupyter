@@ -9,5 +9,8 @@
     "{connection_file}",
     "--InteractiveShellApp.extensions=sardana_ipython"
   ],
-  "language": "python"
+  "language": "python",
+  "metadata": {
+    "debugger": true
+   }
 }
