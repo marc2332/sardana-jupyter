@@ -21,18 +21,14 @@ def on_elements_changed(value):
     for elem_name, elem_info in elements.items():
         if "MacroCode" in elem_info["interfaces"]:
             def macro_fn(parameter_s='', name=elem_name, *args, **kwargs):
-
-                params_def = ms.get_macro(name).get_parameter()
-                parameters = split_macro_parameters(parameter_s, params_def)
-                par_str_lst = [name]
-                par_str_lst.extend(parameters)
                 global progress
                 progress = widgets.FloatProgress(description='Progress:',
                                                  bar_style='info',
                                                  orientation='horizontal')
                 display(progress)
                 try:
-                    return door.run_macro(par_str_lst)
+                    name_and_params = [name] + parameter_s.split()
+                    return door.run_macro(name_and_params)
                 except KeyboardInterrupt:
                     door.macro_executor.stop()
                 # macro = door.get_running_macro()
@@ -96,9 +92,10 @@ def load_ipython_extension(ipython):
 
     global ms
     ms = MacroServer(ms_full_name, ms_name)
+    ms.setLogLevel(logging.DEBUG)
     ms.add_listener(ms_cb)
-    ms.set_macro_path(conf['macroPath'])
-    ms.set_recorder_path(conf['recordersPath'])
+    ms.set_macro_path([conf['macroPath']])
+    ms.set_recorder_path([conf['recordersPath']])
     ms.set_pool_names(conf['poolNames'])
     ms.set_environment_db("/tmp/{}-jupyter-ms.properties".format(conf['name']))
     global door
