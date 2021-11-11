@@ -50,7 +50,7 @@ class Configuration:
         conf = yaml.load(file_content, Loader=yaml.FullLoader)
         self = Configuration(conf)
         self.load_names()
-        self.load_into_python()
+        self.load_into_ipython()
         return self
 
     def load_names(self):
@@ -62,13 +62,13 @@ class Configuration:
         self.ms_tango_name = from_name_to_tango('MacroServer/{}/1'.format(self.ms_full_name))[0]
         self.door_tango_name = from_name_to_tango('Door/{}/1'.format(self.door_full_name))[0]
 
-    def load_into_python(self):
+    def load_into_ipython(self):
         """
         Load the MacroServer and Door names into the ipython config because of some spock utils
         """
-        iconfig = get_config()
-        iconfig.Spock.macro_server_name = self.ms_tango_name
-        iconfig.Spock.door_name = self.door_tango_name
+        ipython_config = get_config()
+        ipython_config.Spock.macro_server_name = self.ms_tango_name
+        ipython_config.Spock.door_name = self.door_tango_name
 
     def get_property(self, prop: str):
         """
