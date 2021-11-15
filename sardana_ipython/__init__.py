@@ -1,3 +1,5 @@
+from typing import List
+from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
 from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic, from_name_to_tango
@@ -83,21 +85,27 @@ class Extension:
     Jupysar Extension object
     """
 
+    ipython: InteractiveShell
     ms: MacroServer
     door: Door
     conf: Configuration
-    comm: Comm
+    comms: List[Comm] = []
 
     # Progress bar widget
     progress: widgets.FloatProgress
 
-    def __init__(self, conf: Configuration):
+    def __init__(self, ipython: InteractiveShell, conf: Configuration):
+        self.ipython = ipython
         self.conf = conf
+
+        # Open a Jupyter Comm
+        ipython.kernel.comm_manager.register_target('result', self.on_comm)
+        logger.critical("Reopenned")
 
         # Create MacroServer
         self.ms = MacroServer(conf.ms_full_name, conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
-        self.ms.setLogLevel(logging.DEBUG)
+        self.ms.setLogLevel(logging.CRITICAL)
         self.ms.set_macro_path([conf.get_property('macroPath')])
         self.ms.set_recorder_path([conf.get_property('recordersPath')])
         self.ms.set_pool_names(conf.get_property('poolNames'))
@@ -105,13 +113,25 @@ class Extension:
 
         # Create Door
         self.door = self.ms.create_door(full_name = conf.door_full_name, name = conf.door_full_name)
-        self.door.add_listener(self.door_handler)
+        self.door.add_listener(self.door_handler)      
 
-        # Create Jupyter Comm
-        self.comm = Comm(target_name='result', data=None)
-        @self.comm.on_msg 
-        def on_msg(**kwargs):
-            self.on_comm_msg(kwargs)
+    def send_to_comms(self, data):
+        for comm in self.comms:
+            comm.send(data)
+        
+    def on_comm(self, comm, init_msg):
+        """
+        Handle incomming messages from the Jupyter Comm
+        """
+
+        self.comms.append(comm)
+        logger.debug("New external connection")
+
+        """
+        @comm.on_msg
+        def _recv(msg):
+            comm.send()
+        """
 
     def ms_handler(self, source, type_, value):
         """
@@ -198,15 +218,7 @@ class Extension:
         """
         fmt, data = value
         # Send the retrieved data from the recorder to the frontend extension through the comm channel
-        self.comm.send({'data': data})
-
-   
-    def on_comm_msg(self, msg):
-        """
-        Handle incomming messages from the Jupyter Comm
-        """
-        pass
-
+        self.send_to_comms({'data': data})
 
 
 def load_ipython_extension(ipython):
@@ -218,9 +230,9 @@ def load_ipython_extension(ipython):
     conf = Configuration.from_env_var()
 
     # Run the extension
-    Extension(conf)
+    Extension(ipython, conf)
 
-    logger.info('Launched Sardana Extension')
+    logger.critical('Launched Sardana Extension')
 
 def unload_ipython_extension(ipython):
     pass

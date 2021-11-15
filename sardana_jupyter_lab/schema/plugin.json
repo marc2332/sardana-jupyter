@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "Jupysar",
+  "description": "Jupysar settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
