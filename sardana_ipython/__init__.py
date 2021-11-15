@@ -129,7 +129,7 @@ class Extension:
         elif type_.name == 'recorddata':
             self.on_record_data(value)
 
-    def auto_complete_macro(self, event):
+    def auto_complete_macro(self, zmq_shell, event):
         """
         Method called by the IPython autocompleter. It will determine values for macro arguments.
         """
