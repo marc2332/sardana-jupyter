@@ -100,7 +100,6 @@ class Extension:
 
         # Open a Jupyter Comm
         ipython.kernel.comm_manager.register_target('result', self.on_comm)
-        logger.critical("Reopenned")
 
         # Create MacroServer
         self.ms = MacroServer(conf.ms_full_name, conf.ms_full_name)
@@ -125,7 +124,6 @@ class Extension:
         """
 
         self.comms.append(comm)
-        logger.debug("New external connection")
 
         """
         @comm.on_msg

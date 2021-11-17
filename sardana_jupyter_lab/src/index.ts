@@ -45,22 +45,20 @@ class NotebookExtension {
   };
 
   constructor(app: JupyterFrontEnd, panel: NotebookPanel) {
-    // Shortcut to get the current token
+    // Shortcut to get the current kernel
     const getCurrentKernel = () => panel.sessionContext.session?.kernel;
 
     // Create a new Jupyter Comm when the kernel is reloaded
     panel.sessionContext.kernelChanged.connect(() => {
-      setTimeout(() => {
-        const kernel = getCurrentKernel();
+      const kernel = getCurrentKernel();
 
-        if (kernel != null) {
-          new Connection(
-            'result',
-            kernel,
-            this.connectionMessageHandler.bind(this)
-          );
-        }
-      }, 5000);
+      if (kernel != null) {
+        new Connection(
+          'result',
+          kernel,
+          this.connectionMessageHandler.bind(this)
+        );
+      }
     });
 
     // Connect to the Jupyter conn running on kernel
