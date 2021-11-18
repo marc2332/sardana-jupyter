@@ -104,7 +104,7 @@ class Extension:
         # Create MacroServer
         self.ms = MacroServer(conf.ms_full_name, conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
-        self.ms.setLogLevel(logging.CRITICAL)
+        self.ms.setLogLevel(logging.DEBUG)
         self.ms.set_macro_path([conf.get_property('macroPath')])
         self.ms.set_recorder_path([conf.get_property('recordersPath')])
         self.ms.set_pool_names(conf.get_property('poolNames'))

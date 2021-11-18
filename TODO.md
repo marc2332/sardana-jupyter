@@ -11,11 +11,10 @@
 
 - [x] Macros with string parameters can not be started e.g. senv
 - [ ] Show macro result
-- [ ] Macro parameters tab completion
+- [x] Macro parameters tab completion
 - [ ] Interactive macros (macro input)
 - [ ] Macros that execute other macros might interfere with the parent macro's progress bar (e.g sar_demo)
 
 # GUI
 
-- [ ] showscan online plotting
-- [ ] macro parameters graphical editor
+- [x] Showscan online plotting
