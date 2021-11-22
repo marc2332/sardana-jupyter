@@ -40,7 +40,7 @@ configuration variables in your `sardana-jupyter.yml`:
 
 ```shell
 cp ./examples/sardana-jupyter.yml $HOME/sardana-jupyter.yml
-export SARDANA_JUPYTER_CONF = $HOME/sardana-jupyter.yml
+export SARDANA_JUPYTER_CONF=$HOME/sardana-jupyter.yml
 ```
 
 - name - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
