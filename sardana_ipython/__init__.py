@@ -276,7 +276,7 @@ class Extension:
             """
             Stop the server
             """
-            #self.app._terminate_server_for_port("localhost", 8050)
+            self.app._terminate_server_for_port("localhost", 8050)
 
 def create_scatter_figure(data):
     """
