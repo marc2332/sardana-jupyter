@@ -2,7 +2,7 @@ import random
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
 from dash.dependencies import Input, Output
-from sardana.macroserver.msmetamacro import MacroClass
+from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic, from_name_to_tango
 from sardana.taurus.core.tango.sardana.macro import MacroInfo
@@ -169,7 +169,7 @@ class Extension:
         elements = value['new']
         for element in elements:
             elem_name = element.name
-            if isinstance(element, MacroClass):
+            if isinstance(element, (MacroClass, MacroFunction)):
                 """
                 Register the macros from the MacroServer as magic commands in the iPython shell
                 """
