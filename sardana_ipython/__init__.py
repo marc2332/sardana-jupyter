@@ -1,16 +1,21 @@
-from typing import List
+import random
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
+from dash.dependencies import Input, Output
+from sardana.macroserver.msmetamacro import MacroClass
 from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic, from_name_to_tango
-from ipykernel.comm import Comm
 from sardana.taurus.core.tango.sardana.macro import MacroInfo
 from sardana.taurus.core.tango.sardana.sardana import Door
 from traitlets.config.application import get_config
+from jupyter_dash import JupyterDash
+from plotly import express
 import ipywidgets as widgets
 import yaml
 import logging
 import os
+import dash_core_components as dcc
+import dash_html_components as html
 
 logger = logging.getLogger()
 
@@ -89,7 +94,7 @@ class Extension:
     ms: MacroServer
     door: Door
     conf: Configuration
-    comms: List[Comm] = []
+    app: JupyterDash
 
     # Progress bar widget
     progress: widgets.FloatProgress
@@ -98,38 +103,18 @@ class Extension:
         self.ipython = ipython
         self.conf = conf
 
-        # Open a Jupyter Comm
-        ipython.kernel.comm_manager.register_target('result', self.on_comm)
-
         # Create MacroServer
-        self.ms = MacroServer(conf.ms_full_name, conf.ms_full_name)
+        self.ms = MacroServer(conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
         self.ms.setLogLevel(logging.DEBUG)
-        self.ms.set_macro_path([conf.get_property('macroPath')])
-        self.ms.set_recorder_path([conf.get_property('recordersPath')])
+        self.ms.set_macro_path([])
+        self.ms.set_recorder_path([])
         self.ms.set_pool_names(conf.get_property('poolNames'))
         self.ms.set_environment_db('/tmp/{}-jupyter-ms.properties'.format(conf.get_property('name')))
 
         # Create Door
         self.door = self.ms.create_door(full_name = conf.door_full_name, name = conf.door_full_name)
-        self.door.add_listener(self.door_handler)      
-
-    def send_to_comms(self, data):
-        for comm in self.comms:
-            comm.send(data)
-        
-    def on_comm(self, comm, init_msg):
-        """
-        Handle incomming messages from the Jupyter Comm
-        """
-
-        self.comms.append(comm)
-
-        """
-        @comm.on_msg
-        def _recv(msg):
-            comm.send()
-        """
+        self.door.add_listener(self.door_handler)    
 
     def ms_handler(self, source, type_, value):
         """
@@ -182,8 +167,9 @@ class Extension:
         """
 
         elements = value['new']
-        for elem_name, elem_info in elements.items():
-            if 'MacroCode' in elem_info['interfaces']:
+        for element in elements:
+            elem_name = element.name
+            if isinstance(element, MacroClass):
                 """
                 Register the macros from the MacroServer as magic commands in the iPython shell
                 """
@@ -209,14 +195,100 @@ class Extension:
         self.progress.max = max
         self.progress.value = step
 
-
     def on_record_data(self, value):
         """
         Handle incoming data from a Recorder
         """
         fmt, data = value
-        # Send the retrieved data from the recorder to the frontend extension through the comm channel
-        self.send_to_comms({'data': data})
+
+        if data['type'] == "data_desc":
+            """
+            Run the dash server when the scan is starting
+            """
+
+            ID = str(random.random()).replace(".","")[0:3]
+            self.app = JupyterDash(__name__)
+
+            self.df = {
+                "x": [],
+                "y": [],
+                "customdata":[],
+                "name":[]
+            }
+
+            # Config
+            self.xAxe = 0
+            graph_id = "live-update-graph-"+ID
+            max_intervals = data['data']['total_scan_intervals']
+
+            # Only allow traces that output data
+            self.allowedTraces = {}
+            for trace in data['data']['column_desc']:
+                if 'output' in trace:
+                    if trace['output'] == True:
+                        self.allowedTraces[trace['name']] = trace['label']
+
+            # Create the graph figure
+            fig = create_scatter_figure(self.df);
+
+            self.app.layout = html.Div([
+                 # The graph element
+                dcc.Graph(graph_id, figure=fig),
+                # Interval element that triggers the render loop
+                dcc.Interval(
+                    id='interval-loop',
+                    interval=2000,
+                    n_intervals=0,
+                    max_intervals=max_intervals
+                ) 
+            ])
+      
+            @self.app.callback(
+                Output(graph_id, 'figure'),
+                Input('interval-loop', 'n_intervals')
+            )
+            def render_graph(n):
+               # A render loop binded to the interval element that ouputs a new figure to the graph element.
+               # It will stop looping once it reaches the total of intervals in the scan
+                return create_scatter_figure(self.df)
+            
+            self.app.run_server(mode="inline", debug=True)
+
+        if data['type'] == "record_data":
+            """
+            Update the graph data
+            """
+
+            for traceName in data['data']:
+                if traceName in self.allowedTraces:
+                    i = len(self.df['y'])
+                    traceValue = data['data'][traceName]
+                    traceLabel = self.allowedTraces[traceName]
+
+                    self.df['x'].append(self.xAxe)
+                    self.df['y'].append(traceValue)
+                    self.df['customdata'].append(i)
+                    self.df['name'].append(traceLabel)    
+
+            self.xAxe += 1
+
+        if data['type'] == "record_end":
+            """
+            Stop the server
+            """
+            #self.app._terminate_server_for_port("localhost", 8050)
+
+def create_scatter_figure(data):
+    """
+    Shortcut to easily create a new Scatter figure
+    """
+    fig = express.scatter(data, x="x", y="y", color="name", custom_data=["customdata"])
+
+    fig.update_layout(clickmode='event+select')
+
+    fig.update_traces(marker_size=5, mode='lines+markers')
+
+    return fig
 
 
 def load_ipython_extension(ipython):
