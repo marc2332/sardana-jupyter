@@ -252,7 +252,7 @@ class Extension:
                # It will stop looping once it reaches the total of intervals in the scan
                 return create_scatter_figure(self.df)
             
-            self.app.run_server(mode="inline", debug=True)
+            self.app.run_server(mode="inline", debug=True, inline_exceptions=False)
 
         if data['type'] == "record_data":
             """
