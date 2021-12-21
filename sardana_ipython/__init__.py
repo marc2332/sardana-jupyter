@@ -57,12 +57,15 @@ class Configuration:
         Create a new configuration by reading from the YAML file specified in the SARDANA_JUPYTER_CONF environment variable
         """
         path = os.getenv('SARDANA_JUPYTER_CONF')
-        file = open(path)
-        file_content = file.read()
-        conf = yaml.load(file_content, Loader=yaml.FullLoader)
+        if path is not None:
+            file_ = open(path)
+            file_content = file_.read()
+            conf = yaml.load(file_content, Loader=yaml.FullLoader)
+        else:
+            conf = {'name': 'dummy'}
         self = Configuration(conf)
         self.load_names()
-        self.load_into_ipython()
+        # self.load_into_ipython()
         return self
 
     def load_names(self):
@@ -82,11 +85,11 @@ class Configuration:
         ipython_config.Spock.macro_server_name = self.ms_tango_name
         ipython_config.Spock.door_name = self.door_tango_name
 
-    def get_property(self, prop: str):
+    def get_property(self, prop: str, dft: object = None):
         """
         Easily get a propery from the configuration dictionary
         """
-        return self.conf[prop]
+        return self.conf.get(prop, dft)
 
 
 class ShowscanState(IntEnum):
@@ -119,9 +122,9 @@ class Extension:
         self.ms = MacroServer(conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
         self.ms.setLogLevel(logging.DEBUG)
-        self.ms.set_macro_path([])
-        self.ms.set_recorder_path([])
-        self.ms.set_pool_names(conf.get_property('poolNames'))
+        self.ms.set_macro_path(conf.get_property('macroPath', []))
+        self.ms.set_recorder_path(conf.get_property('recorderPath', []))
+        self.ms.set_pool_names(conf.get_property('poolNames', []))
         self.ms.set_environment_db('/tmp/{}-jupyter-ms.properties'.format(conf.get_property('name')))
 
         # Create Door
