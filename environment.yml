@@ -20,7 +20,7 @@ dependencies:
   - pandas
   - dash-core-components 
   - dash-html-components
+  - taurus
   - pip:
+    - git+https://gitlab.com/sardana-org/sardana.git
     - --editable=./
-    - --editable=file:///home/mespin/Work/zreszela-taurus
-    - --editable=file:///home/mespin/Work/sardana-ms-events
