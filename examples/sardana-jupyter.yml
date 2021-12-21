@@ -1,5 +1,7 @@
 name: dummy
 poolNames:
   - Pool_test_1
-macroPath: <path-to-sardana-clone>/src/sardana/macroserver/macros/examples
-recordersPath: <path-to-sardana-clone>/src/sardana/macroserver/recorders/examples
+macroPath: 
+  - <install-dir>/sardana/macroserver/macros/examples
+recordersPath:
+  - <install-dir>/sardana/macroserver/macros/examples
