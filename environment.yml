@@ -15,7 +15,12 @@ dependencies:
   - jupyterlab
   - pip
   - nodejs
+  - jupyter-dash
+  - plotly
+  - pandas
+  - dash-core-components 
+  - dash-html-components
   - pip:
     - --editable=./
     - --editable=file:///home/mespin/Work/zreszela-taurus
-    - --editable=file:///home/mespin/Work/zreszela-sardana
+    - --editable=file:///home/mespin/Work/sardana-ms-events
