@@ -24,32 +24,41 @@ local taurus and sardana clones.
 
 ```shell
 conda env create -f environment.yml
-
 conda activate sardana-jupyter
-
 ./scripts/setup.bash
 ```
 
-**IMPORTANT**: sardana requires features available in the reszelaz/jupyter-ms branch
-
 ## Start the Jupyter Lab
 
-Currently the jupyter extension only instantiate the MacroServer part.
-You will need to start your Pool instance as Tango device server and configure the following
-configuration variables in your `sardana-jupyter.yml`:
+Currently the Jupyter extension only instantiate the MacroServer part. 
+You can still use it on its own but it may be not so interesting...
 
-```shell
-cp ./examples/sardana-jupyter.yml $HOME/sardana-jupyter.yml
-export SARDANA_JUPYTER_CONF=$HOME/sardana-jupyter.yml
-```
+In order to use the full Sardana system you will need to run your Pool
+instance as a Tango device server and point to it in the configuration file
+(see the "Configuration" section below).
 
-- name - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
-- poolNames = pool(s) you would like to connect to e.g. ["Pool_test_1"]
-- macroPath = - path(s) to your macros e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/macros/examples"]
-- recordersPath = path(s) to your recorders e.g. ["<path-to-sardana-clone>/src/sardana/macroserver/recorders/examples"]
+Then to start the Jupter Lab you just need:
 
 ```shell
 jupyter lab examples/example_macros.ipynb
 ```
 
 And then select the `Sardana Kernel` Notebook.
+
+## Configuration
+
+sardana-jupyter can be configured using a YAML file.
+The file location must be set using the `SARDANA_JUPYTER_CONF` environment variable.
+You can use the example configuration file as a template.
+
+```shell
+cp ./examples/sardana-jupyter.yml $HOME/sardana-jupyter.yml
+export SARDANA_JUPYTER_CONF=$HOME/sardana-jupyter.yml
+```
+
+In the file you can set the following keys:
+
+- `name` - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
+- `poolNames` - pool(s) you would like to connect to e.g. ["Pool_test_1"]
+- `macroPath` - path(s) to your macros e.g. ["<install-dir>/sardana/macroserver/macros/examples"]
+- `recorderPath` = path(s) to your recorders e.g. ["<install-dir>/sardana/macroserver/recorders/examples"]
