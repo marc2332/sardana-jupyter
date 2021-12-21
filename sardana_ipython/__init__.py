@@ -1,12 +1,16 @@
 import random
+from time import sleep
+from enum import IntEnum
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
+import dash
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic, from_name_to_tango
 from sardana.taurus.core.tango.sardana.macro import MacroInfo
-from sardana.taurus.core.tango.sardana.sardana import Door
+from sardana.taurus.core.tango.sardana.sardana import Door, PlotType
 from traitlets.config.application import get_config
 from jupyter_dash import JupyterDash
 from plotly import express
@@ -16,6 +20,7 @@ import logging
 import os
 import dash_core_components as dcc
 import dash_html_components as html
+import uuid
 
 logger = logging.getLogger()
 
@@ -83,6 +88,12 @@ class Configuration:
         """
         return self.conf[prop]
 
+
+class ShowscanState(IntEnum):
+
+    Plot = 1
+    LastPlotPending = 2
+    Done = 3
     
 
 class Extension:
@@ -95,6 +106,7 @@ class Extension:
     door: Door
     conf: Configuration
     app: JupyterDash
+    plotConf = {}
 
     # Progress bar widget
     progress: widgets.FloatProgress
@@ -114,7 +126,9 @@ class Extension:
 
         # Create Door
         self.door = self.ms.create_door(full_name = conf.door_full_name, name = conf.door_full_name)
-        self.door.add_listener(self.door_handler)    
+        self.door.add_listener(self.door_handler)
+
+        self._showscan_state = None
 
     def ms_handler(self, source, type_, value):
         """
@@ -190,6 +204,7 @@ class Extension:
         macro_status = value[0]
         min, max = macro_status['range']
         step = macro_status['step']
+
         # Update the progress bar widget
         self.progress.min = min
         self.progress.max = max
@@ -205,88 +220,121 @@ class Extension:
             """
             Run the dash server when the scan is starting
             """
-
-            ID = str(random.random()).replace(".","")[0:3]
-            self.app = JupyterDash(__name__)
-
-            self.df = {
+            
+            # Plot data
+            self.plot = {
                 "x": [],
                 "y": [],
-                "customdata":[],
                 "name":[]
             }
 
-            # Config
-            self.xAxe = 0
-            graph_id = "live-update-graph-"+ID
-            max_intervals = data['data']['total_scan_intervals']
+            self._showscan_state = ShowscanState.Plot
 
-            # Only allow traces that output data
+            
+            # Plot configuration
+            self.plotConf = {
+                'graph_id': 'live-update-graph-' + str(uuid.uuid4()),
+                'figure': None,
+                'x_title': 'x'
+            }
+
+            # Only allow Spectrum plots
             self.allowedTraces = {}
             for trace in data['data']['column_desc']:
-                if 'output' in trace:
-                    if trace['output'] == True:
-                        self.allowedTraces[trace['name']] = trace['label']
+                ptype = trace.get('plot_type', PlotType.No)
+                if ptype == PlotType.No:
+                    continue
+                if ptype != PlotType.Spectrum:
+                    continue
+                x_axes = ['point_nb' if axis == '<idx>' else axis for axis in trace.get('plot_axes', ())]
+                if len(x_axes) == 0:
+                    continue
+                if x_axes[0] == 'point_nb':
+                    continue 
+                self.allowedTraces[trace['name']] = trace
+                self.plotConf['x_title'] = x_axes[0]
+                    
 
-            # Create the graph figure
-            fig = create_scatter_figure(self.df);
+            
+           
+            self.plotConf['figure'] = create_line_figure(self.plot, self.plotConf)
 
+            # Crate the JupyterDash app
+            self.app = JupyterDash(__name__)
             self.app.layout = html.Div([
-                 # The graph element
-                dcc.Graph(graph_id, figure=fig),
+                # The graph element
+                dcc.Graph(self.plotConf['graph_id'], figure=self.plotConf['figure']),
                 # Interval element that triggers the render loop
                 dcc.Interval(
-                    id='interval-loop',
-                    interval=2000,
-                    n_intervals=0,
-                    max_intervals=max_intervals
+                    id = 'interval-loop',
+                    interval = 500,
+                    n_intervals = 0,
                 ) 
             ])
       
-            @self.app.callback(
-                Output(graph_id, 'figure'),
+            
+            @self.app.callback([
+                    Output(self.plotConf['graph_id'], 'figure'),
+                    Output('interval-loop', 'disabled')
+                ],
                 Input('interval-loop', 'n_intervals')
             )
             def render_graph(n):
-               # A render loop binded to the interval element that ouputs a new figure to the graph element.
-               # It will stop looping once it reaches the total of intervals in the scan
-                return create_scatter_figure(self.df)
-            
-            self.app.run_server(mode="inline", debug=True, inline_exceptions=False)
+                """
+                A render loop binded to the interval element and ouputs a new figure to the graph element.
+                """
+                fig = create_line_figure(self.plot, self.plotConf)
+                if self._showscan_state ==  ShowscanState.LastPlotPending:
+                    self._showscan_state = ShowscanState.Done
+                elif self._showscan_state == ShowscanState.Done:
+                    return (fig, True)
+                return (fig, False)
+               
+
+            self.app.run_server(mode="inline", debug=True, inline_exceptions=True, dev_tools_ui=True)
 
         if data['type'] == "record_data":
             """
-            Update the graph data
+            Update the plot data
             """
+            for traceName in self.allowedTraces:
+                traceValue = data['data'][traceName]
+                traceData = self.allowedTraces[traceName]
 
-            for traceName in data['data']:
-                if traceName in self.allowedTraces:
-                    i = len(self.df['y'])
-                    traceValue = data['data'][traceName]
-                    traceLabel = self.allowedTraces[traceName]
+                motorName = traceData['plot_axes'][0]
+                motorPos = data['data'][motorName]
 
-                    self.df['x'].append(self.xAxe)
-                    self.df['y'].append(traceValue)
-                    self.df['customdata'].append(i)
-                    self.df['name'].append(traceLabel)    
-
-            self.xAxe += 1
+                self.plot['x'].append(motorPos)    
+                self.plot['y'].append(traceValue)
+                self.plot['name'].append(traceData['label'])
 
         if data['type'] == "record_end":
             """
-            Stop the server
+            There is no need to manually stop the server because JupyterDash already does it
+            when you render a new app.
             """
-            self.app._terminate_server_for_port("localhost", 8050)
-
-def create_scatter_figure(data):
+            self._showscan_state = ShowscanState.LastPlotPending
+            #self.app._terminate_server_for_port(8050)
+            
+def create_line_figure(data, conf):
     """
-    Shortcut to easily create a new Scatter figure
+    Shortcut to easily create a new Line figure
     """
-    fig = express.scatter(data, x="x", y="y", color="name", custom_data=["customdata"])
+    fig = express.line(data, 
+                       x='x',
+                       y='y',
+                       markers=True,
+                       color='name',
+                       labels={
+                           'x': conf['x_title'],
+                           'y': 'values'
+                       })
 
-    fig.update_layout(clickmode='event+select')
-
-    fig.update_traces(marker_size=5, mode='lines+markers')
+    fig.update_layout(
+        clickmode='event+select',
+        # Leaving this parameter with always this value prevents dash from re-rendering on each update
+        uirevision='empty'
+    )
 
     return fig
 
@@ -306,3 +354,4 @@ def load_ipython_extension(ipython):
 
 def unload_ipython_extension(ipython):
     pass
+
