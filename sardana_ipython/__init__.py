@@ -257,7 +257,8 @@ class Extension:
                 self.allowedTraces[trace['name']] = trace
                 self.plotConf['x_title'] = x_axes[0]
                     
-
+            if len(self.allowedTraces) == 0:
+                return
             
            
             self.plotConf['figure'] = create_line_figure(self.plot, self.plotConf)
@@ -316,6 +317,9 @@ class Extension:
             There is no need to manually stop the server because JupyterDash already does it
             when you render a new app.
             """
+            if len(self.allowedTraces) == 0:
+                return
+
             self._showscan_state = ShowscanState.LastPlotPending
             #self.app._terminate_server_for_port(8050)
             
