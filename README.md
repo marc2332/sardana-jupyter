@@ -19,8 +19,6 @@ Wait some seconds, open  [localhost:8888](http://localhost:8888) and select the 
 ## Manual installation
 
 You can install the necessary dependencies using conda. 
-Prior to that, edit the `environment.yml` file to point to your
-local taurus and sardana clones.
 
 ```shell
 conda env create -f environment.yml
@@ -58,7 +56,7 @@ export SARDANA_JUPYTER_CONF=$HOME/sardana-jupyter.yml
 
 In the file you can set the following keys:
 
-- `name` - name of your jupyter macroserver instance e.g. "test", "dummy", etc.
-- `poolNames` - pool(s) you would like to connect to e.g. ["Pool_test_1"]
-- `macroPath` - path(s) to your macros e.g. ["<install-dir>/sardana/macroserver/macros/examples"]
-- `recorderPath` = path(s) to your recorders e.g. ["<install-dir>/sardana/macroserver/recorders/examples"]
+- `name` - name of your jupyter macroserver instance e.g. `test`, `dummy`, etc.
+- `poolNames` - pool(s) you would like to connect to e.g. `Pool_test_1`
+- `macroPath` - path(s) to your macros e.g. `<install-dir>/sardana/macroserver/macros/examples`
+- `recorderPath` = path(s) to your recorders e.g. `<install-dir>/sardana/macroserver/recorders/examples`
