@@ -323,7 +323,8 @@ def create_line_figure(data, conf):
                        color='name',
                        labels={
                            'x': conf['x_title'],
-                           'y': 'values'
+                           'y': 'values',
+                           'name': 'channels'
                        })
 
     fig.update_layout(
