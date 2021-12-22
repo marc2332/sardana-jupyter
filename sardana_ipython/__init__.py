@@ -284,7 +284,7 @@ class Extension:
                 return (fig, False)
                
 
-            self.app.run_server(mode="inline", debug=True, inline_exceptions=True, dev_tools_ui=True)
+            self.app.run_server(mode="inline", inline_exceptions=True)
 
         if data['type'] == "record_data":
             """
