@@ -3,7 +3,7 @@ Sardana integration into the Jupyter ecosystem.
 
 This is still a WIP. For a list of missing features/ideas see TODO.md.
 
-**Note**: The old plotting mechanism was made using PlotlyJS, if you find it useful you can see how it worked on this [commit](https://gitlab.com/sardana-org/sardana-jupyter/-/commit/7e2ec54bd5da838dee96a34834b7cfd6497a488c).
+**Note**: The old plotting mechanism was made using PlotlyJS, you can see how it worked, [here](https://gitlab.com/sardana-org/sardana-jupyter/-/blob/98bb157b15857790c18edd48ee6be44ab7c967c9/sardana_jupyter_lab/src/index.ts).
 
 ## Docker demo
 Create the image:
