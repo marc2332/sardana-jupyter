@@ -14,8 +14,13 @@ dependencies:
   - ipykernel
   - jupyterlab
   - pip
+  - jupyter-dash
+  - plotly
+  - pandas
+  - dash-core-components 
+  - dash-html-components
+  - taurus
   - nodejs
   - pip:
+    - git+https://gitlab.com/sardana-org/sardana.git
     - --editable=../
-    - --editable=file:///taurus/
-    - --editable=file:///sardana/

@@ -11,10 +11,15 @@ docker build --label jupysar-demo --tag jupysar-demo -f ./docker/Dockerfile .
 
 Run the container:
 ```shell
-sudo docker run -dp 8888:8888 --name jupysar-demo jupysar-demo
+sudo docker run -dp 8888:8888 -dp 8050:8050 --name jupysar-demo jupysar-demo
 ```
 
-Wait some seconds, open  [localhost:8888](http://localhost:8888) and select the `Sardana Kernel` Notebook.
+- Wait some seconds
+- Open  [localhost:8888](http://localhost:8888) 
+- Wait for a popup to come up, then select "Build"
+- Wait for another popup to come, select "Save and Reload"
+- Open the Notebook `/examples/example_macros.ipynib` with Sardana Kernel selected
+- Follow the guide
 
 ## Manual installation
 
