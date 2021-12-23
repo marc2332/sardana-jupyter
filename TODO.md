@@ -1,8 +1,9 @@
 # General
 
-- [x] configuration parameters loaded from a file
+- [x] Configuration parameters loaded from a file
 - [ ] Stop the MacroServer execution when the extension unloads
 - [ ] How to present to the user the macro exception details (equivalent to Spock's `www`)
+- [ ] Unit tests + CI
 
 # Macro execution
 
@@ -16,3 +17,6 @@
 # GUI
 
 - [x] Showscan online plotting
+
+# Docker
+- [ ] Automatically rebuild JupyterLab (See [this](https://github.com/plotly/jupyter-dash#jupyterlab-support))
