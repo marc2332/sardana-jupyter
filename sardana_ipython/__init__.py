@@ -126,14 +126,7 @@ class Extension:
         self._showscan_state = None
 
     def prepare_macro_logging(self):
-        Logger.addLevelName(15, "OUTPUT")
-
-        def output(loggable, msg, *args, **kw):
-            loggable.getLogObj().log(Logger.Output, msg, *args, **kw)
-
-        Logger.output = output
-
-        self.door.getLogObj().setLevel(logging.DEBUG)
+        self.door.getLogObj().setLevel(Logger.Debug)
         handler = logging.StreamHandler(stream=sys.stdout)
         handler.setLevel(Logger.Output)        
         self.door.addLogHandler(handler)
