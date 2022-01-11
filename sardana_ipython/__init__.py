@@ -7,7 +7,6 @@ from IPython.display import display
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import taurus
 from taurus.core.util.log import Logger
 from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
@@ -26,8 +25,7 @@ import dash_html_components as html
 import uuid
 
 Logger.disableLogOutput()
-root_logger = logging.getLogger()
-root_logger.handlers.clear()
+
 
 def getElementNamesWithInterface(elements, searching_interface):
     """
