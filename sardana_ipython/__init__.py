@@ -1,3 +1,4 @@
+import sys
 import random
 from time import sleep
 from enum import IntEnum
@@ -6,6 +7,8 @@ from IPython.display import display
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
+import taurus
+from taurus.core.util.log import Logger
 from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
 from sardana.spock.ipython_01_00.genutils import expose_magic, from_name_to_tango
@@ -22,7 +25,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import uuid
 
-logger = logging.getLogger()
+Logger.disableLogOutput()
+root_logger = logging.getLogger()
+root_logger.handlers.clear()
 
 def getElementNamesWithInterface(elements, searching_interface):
     """
@@ -87,7 +92,6 @@ class ShowscanState(IntEnum):
     LastPlotPending = 2
     Done = 3
     
-
 class Extension:
     """
     Jupysar Extension object
@@ -110,17 +114,31 @@ class Extension:
         # Create MacroServer
         self.ms = MacroServer(conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
-        self.ms.setLogLevel(logging.DEBUG)
+        self.ms.setLogLevel(logging.INFO)
         self.ms.set_macro_path(conf.get_property('macroPath', []))
         self.ms.set_recorder_path(conf.get_property('recorderPath', []))
         self.ms.set_pool_names(conf.get_property('poolNames', []))
         self.ms.set_environment_db('/tmp/{}-jupyter-ms.properties'.format(conf.get_property('name')))
-
+        
         # Create Door
         self.door = self.ms.create_door(full_name = conf.door_full_name, name = conf.door_full_name)
         self.door.add_listener(self.door_handler)
 
+        self.prepare_macro_logging()
         self._showscan_state = None
+
+    def prepare_macro_logging(self):
+        Logger.addLevelName(15, "OUTPUT")
+
+        def output(loggable, msg, *args, **kw):
+            loggable.getLogObj().log(Logger.Output, msg, *args, **kw)
+
+        Logger.output = output
+
+        self.door.getLogObj().setLevel(logging.DEBUG)
+        handler = logging.StreamHandler(stream=sys.stdout)
+        handler.setLevel(Logger.Output)        
+        self.door.addLogHandler(handler)
 
     def ms_handler(self, source, type_, value):
         """
@@ -175,7 +193,7 @@ class Extension:
         elements = value['new']
         for element in elements:
             elem_name = element.name
-            if isinstance(element, (MacroClass, MacroFunction)):
+            if isinstance(element, (MacroClass, MacroFunction)):      
                 """
                 Register the macros from the MacroServer as magic commands in the iPython shell
                 """
@@ -187,6 +205,7 @@ class Extension:
                         return self.door.run_macro(name_and_params)
                     except KeyboardInterrupt:
                         self.door.macro_executor.stop()
+                #logger.info("registered: "+element.name)
                 expose_magic(elem_name, macro_fn, self.auto_complete_macro)
 
     def on_macro_status(self, value):
@@ -347,7 +366,7 @@ def load_ipython_extension(ipython):
     # Run the extension
     Extension(ipython, conf)
 
-    logger.critical('Launched Sardana Extension')
+    #root_logger.critical('Launched Sardana Extension')
 
 def unload_ipython_extension(ipython):
     pass
