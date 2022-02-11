@@ -4,6 +4,7 @@
 - [ ] Stop the MacroServer execution when the extension unloads
 - [ ] How to present to the user the macro exception details (equivalent to Spock's `www`)
 - [ ] Unit tests + CI
+- [x] Integrate flake8 and black via pre-commit and in the CI
 
 # Macro execution
 
