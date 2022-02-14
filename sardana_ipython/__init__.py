@@ -3,7 +3,6 @@ from enum import IntEnum
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
 from taurus.core.util.log import Logger
 from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
@@ -90,7 +89,8 @@ class ShowscanState(IntEnum):
     Plot = 1
     LastPlotPending = 2
     Done = 3
-    
+
+
 class Extension:
     """
     Jupysar Extension object
@@ -114,11 +114,13 @@ class Extension:
         self.ms = MacroServer(conf.ms_full_name)
         self.ms.add_listener(self.ms_handler)
         self.ms.setLogLevel(logging.INFO)
-        self.ms.set_macro_path(conf.get_property('macroPath', []))
-        self.ms.set_recorder_path(conf.get_property('recorderPath', []))
-        self.ms.set_pool_names(conf.get_property('poolNames', []))
-        self.ms.set_environment_db('/tmp/{}-jupyter-ms.properties'.format(conf.get_property('name')))
-        
+        self.ms.set_macro_path(conf.get_property("macroPath", []))
+        self.ms.set_recorder_path(conf.get_property("recorderPath", []))
+        self.ms.set_pool_names(conf.get_property("poolNames", []))
+        self.ms.set_environment_db(
+            "/tmp/{}-jupyter-ms.properties".format(conf.get_property("name"))
+        )
+
         # Create Door
         self.door = self.ms.create_door(
             full_name=conf.door_full_name, name=conf.door_full_name
@@ -199,7 +201,7 @@ class Extension:
         elements = value["new"]
         for element in elements:
             elem_name = element.name
-            if isinstance(element, (MacroClass, MacroFunction)):      
+            if isinstance(element, (MacroClass, MacroFunction)):
                 """
                 Register the macros from the MacroServer as magic commands
                 in the iPython shell
@@ -217,7 +219,8 @@ class Extension:
                         return self.door.run_macro(name_and_params)
                     except KeyboardInterrupt:
                         self.door.macro_executor.stop()
-                #logger.info("registered: "+element.name)
+
+                # logger.info("registered: "+element.name)
                 expose_magic(elem_name, macro_fn, self.auto_complete_macro)
 
     def on_macro_status(self, value):
@@ -382,7 +385,8 @@ def load_ipython_extension(ipython):
     # Run the extension
     Extension(ipython, conf)
 
-    #root_logger.critical('Launched Sardana Extension')
+    # root_logger.critical('Launched Sardana Extension')
+
 
 def unload_ipython_extension(ipython):
     pass
