@@ -18,6 +18,7 @@ import os
 import dash_core_components as dcc
 import dash_html_components as html
 import uuid
+import ipykernel.kernelbase
 
 Logger.disableLogOutput()
 root_logger = logging.getLogger()
@@ -91,6 +92,21 @@ class ShowscanState(IntEnum):
     Done = 3
 
 
+class JupyterNotebookInputHandler(object):
+    def __init__(self):
+        kernel = ipykernel.kernelbase.Kernel.instance()
+        self._input = kernel.raw_input
+
+    def input(self, input_data=None):
+        if input_data is None:
+            input_data = {}
+        prompt = input_data.get("prompt")
+        if prompt is None:
+            return self._input()
+        else:
+            return self._input(prompt)
+
+
 class Extension:
     """
     Jupysar Extension object
@@ -125,6 +141,7 @@ class Extension:
         self.door = self.ms.create_door(
             full_name=conf.door_full_name, name=conf.door_full_name
         )
+        self.door.input_handler = JupyterNotebookInputHandler()
         self.door.add_listener(self.door_handler)
 
         self.prepare_macro_logging()
