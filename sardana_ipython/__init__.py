@@ -6,6 +6,7 @@ from dash.dependencies import Input, Output
 from taurus.core.util.log import Logger
 from sardana.macroserver.msmetamacro import MacroClass, MacroFunction
 from sardana.macroserver.macroserver import MacroServer
+from sardana.macroserver.msdoor import BaseInputHandler
 from sardana.spock.ipython_01_00.genutils import expose_magic
 from sardana.taurus.core.tango.sardana.macro import MacroInfo
 from sardana.taurus.core.tango.sardana.sardana import Door, PlotType
@@ -92,19 +93,10 @@ class ShowscanState(IntEnum):
     Done = 3
 
 
-class JupyterNotebookInputHandler(object):
+class JupyterNotebookInputHandler(BaseInputHandler):
     def __init__(self):
         kernel = ipykernel.kernelbase.Kernel.instance()
         self._input = kernel.raw_input
-
-    def input(self, input_data=None):
-        if input_data is None:
-            input_data = {}
-        prompt = input_data.get("prompt")
-        if prompt is None:
-            return self._input()
-        else:
-            return self._input(prompt)
 
 
 class Extension:
