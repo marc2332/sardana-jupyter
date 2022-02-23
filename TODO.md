@@ -12,7 +12,7 @@
 - [ ] Show macro result
 - [x] Do not log all logger messages e.g. GScan messages during scan execution
 - [x] Macro parameters tab completion
-- [ ] Interactive macros (macro input)
+- [x] Interactive macros (macro input)
 - [ ] Macros that execute other macros might interfere with the parent macro's progress bar (e.g sar_demo)
 
 # GUI
