@@ -26,6 +26,8 @@ RUN bash ~/anaconda.sh -b -p $HOME/anaconda
 RUN $HOME/anaconda/bin/conda env create -f ./docker/demo-environment.yml 
 # Install Sardana Kernel
 RUN $HOME/anaconda/bin/conda run --no-capture-output -n sardana-jupyter jupyter kernelspec install $PWD/sardana_kernel --user 
+# Build Jupyter Lab because of Jupyter Dash
+RUN $HOME/anaconda/bin/conda run --no-capture-output -n sardana-jupyter jupyter lab build
 
 WORKDIR /
 

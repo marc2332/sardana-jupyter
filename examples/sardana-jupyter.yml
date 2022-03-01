@@ -4,4 +4,4 @@ poolNames:
 macroPath: 
   - <install-dir>/sardana/macroserver/macros/examples
 recordersPath:
-  - <install-dir>/sardana/macroserver/macros/examples
+  - <install-dir>/sardana/macroserver/recorders/examples
