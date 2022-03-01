@@ -53,10 +53,7 @@ class Configuration:
     ms_tango_name: str
     door_tango_name: str
 
-    def __init__(self, conf: dict):
-        self.conf = conf
-
-    def from_env_var():
+    def __init__(self):
         """
         Create a new configuration by reading from the YAML file specified
         in the SARDANA_JUPYTER_CONF environment variable
@@ -68,9 +65,9 @@ class Configuration:
             conf = yaml.load(file_content, Loader=yaml.FullLoader)
         else:
             conf = {"name": "dummy"}
-        self = Configuration(conf)
+
+        self.conf = conf
         self.load_names()
-        return self
 
     def load_names(self):
         """
@@ -389,7 +386,7 @@ def load_ipython_extension(ipython):
     """
 
     # Retrieve the configuration
-    conf = Configuration.from_env_var()
+    conf = Configuration()
 
     # Run the extension
     Extension(ipython, conf)
