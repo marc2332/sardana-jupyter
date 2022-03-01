@@ -91,6 +91,10 @@ class ShowscanState(IntEnum):
 
 
 class JupyterNotebookInputHandler(BaseInputHandler):
+    """
+    Support Jupyter Notebook's interactive input handling
+    """
+
     def __init__(self):
         kernel = ipykernel.kernelbase.Kernel.instance()
         self._input = kernel.raw_input
@@ -226,7 +230,6 @@ class Extension:
                     except KeyboardInterrupt:
                         self.door.macro_executor.stop()
 
-                # logger.info("registered: "+element.name)
                 expose_magic(elem_name, macro_fn, self.auto_complete_macro)
 
     def on_macro_status(self, value):
@@ -354,7 +357,6 @@ class Extension:
                 return
 
             self._showscan_state = ShowscanState.LastPlotPending
-            # self.app._terminate_server_for_port(8050)
 
 
 def create_line_figure(data, conf):
@@ -390,8 +392,6 @@ def load_ipython_extension(ipython):
 
     # Run the extension
     Extension(ipython, conf)
-
-    # root_logger.critical('Launched Sardana Extension')
 
 
 def unload_ipython_extension(ipython):
