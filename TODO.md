@@ -20,4 +20,4 @@
 - [x] Showscan online plotting
 
 # Docker
-- [ ] Automatically rebuild JupyterLab (See [this](https://github.com/plotly/jupyter-dash#jupyterlab-support))
+- [x] Automatically rebuild JupyterLab (See [this](https://github.com/plotly/jupyter-dash#jupyterlab-support))
