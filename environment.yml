@@ -20,6 +20,7 @@ dependencies:
   - dash-core-components 
   - dash-html-components
   - taurus
+  - jupyter_kernel_test
   - pip:
     - git+https://gitlab.com/sardana-org/sardana.git
     - --editable=./
