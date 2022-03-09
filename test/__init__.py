@@ -9,6 +9,14 @@ class SardanaKernelTest(KernelTests):
     kernel_name = "sardana_kernel"
     language_name = "python"
 
+    def test_sar_demo(self):
+        """
+        Creates a basic demo
+        """
+        self.flush_channels()
+
+        self.execute_helper(code="sar_demo")
+
     def test_sardana_lsm(self):
         """
         Make sure the macro `lsm` prints the list of motors
