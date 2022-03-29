@@ -1,11 +1,23 @@
 stages:
+  - lint
   - test
 
 flake8_and_black:
-  stage: test    
+  stage: lint    
   image: python:3.9-slim-bullseye
   before_script:
-    - pip install flake8==3.9.2 black[jupyter]==21.12b0
+    - pip install flake8==3.9.2 black[jupyter]==22.3.0
   script:
     - flake8 .
     - black --check --diff .
+
+kernel_tests:
+  stage: test
+  image: registry.gitlab.com/marc2332/sardana-jupyter:latest
+  before_script:
+    - supervisord -n &
+    - sleep 10
+    - $HOME/anaconda/bin/conda run -n sardana-jupyter --no-capture-output Sardana demo &
+    - sleep 15
+  script:
+    - $HOME/anaconda/bin/conda run --no-capture-output -n sardana-jupyter python test/__init__.py

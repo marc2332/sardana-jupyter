@@ -69,3 +69,12 @@ In the file you can set the following keys:
 - `poolNames` - pool(s) you would like to connect to e.g. `Pool_test_1`
 - `macroPath` - path(s) to your macros e.g. `<install-dir>/sardana/macroserver/macros/examples`
 - `recorderPath` = path(s) to your recorders e.g. `<install-dir>/sardana/macroserver/recorders/examples`
+
+## Running tests
+
+Note: You should have ran `sar_demo` before.
+
+Run kernel tests:
+```shell
+python test/__init__.py
+```
