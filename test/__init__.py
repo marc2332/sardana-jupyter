@@ -35,10 +35,6 @@ class SardanaKernelTest(KernelTests):
                     return True
             return False
 
-        cols = output_msgs[4]["content"]["text"]
-        self.assertEqual(
-            cols, "       Name          Type   Controller   Axis\n"
-        )
         self.assertTrue(any_motor())
 
     def test_sardana_env(self):
