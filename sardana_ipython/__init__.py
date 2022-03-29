@@ -20,6 +20,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import uuid
 import ipykernel.kernelbase
+from IPython.display import clear_output
 
 Logger.disableLogOutput()
 root_logger = logging.getLogger()
@@ -144,7 +145,13 @@ class Extension:
         Logger.addLevelName(15, "OUTPUT")
 
         def output(loggable, msg, *args, **kw):
-            loggable.getLogObj().log(Logger.Output, msg, *args, **kw)
+            clear_output()
+            data = ""
+            for line in msg.splitlines():
+                if line != "<BLOCK>" and line != "</BLOCK>":
+                    data += "%s\n" % line
+
+            loggable.getLogObj().log(Logger.Output, data, *args, **kw)
 
         Logger.output = output
 
