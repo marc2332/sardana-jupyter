@@ -6,7 +6,7 @@ flake8_and_black:
   stage: lint    
   image: python:3.9-slim-bullseye
   before_script:
-    - pip install flake8==3.9.2 black[jupyter]==21.12b0
+    - pip install flake8==3.9.2 black[jupyter]==22.3.0
   script:
     - flake8 .
     - black --check --diff .
