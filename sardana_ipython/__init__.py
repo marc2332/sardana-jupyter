@@ -145,11 +145,19 @@ class Extension:
         Logger.addLevelName(15, "OUTPUT")
 
         def output(loggable, msg, *args, **kw):
-            clear_output()
             data = ""
+            startsWithBlock = False
+
             for line in msg.splitlines():
-                if line != "<BLOCK>" and line != "</BLOCK>":
-                    data += "%s\n" % line
+                if line == "<BLOCK>":
+                    startsWithBlock = True
+
+                if startsWithBlock:
+                    clear_output()
+                    if line != "<BLOCK>" and line != "</BLOCK>":
+                        data += "%s\n" % line
+                else:
+                    data += line
 
             loggable.getLogObj().log(Logger.Output, data, *args, **kw)
 
