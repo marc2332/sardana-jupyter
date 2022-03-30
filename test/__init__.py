@@ -9,6 +9,14 @@ class SardanaKernelTest(KernelTests):
     kernel_name = "sardana_kernel"
     language_name = "python"
 
+    def test_sar_demo(self):
+        """
+        Creates a basic demo
+        """
+        self.flush_channels()
+
+        self.execute_helper(code="sar_demo")
+
     def test_sardana_lsm(self):
         """
         Make sure the macro `lsm` prints the list of motors
@@ -27,10 +35,6 @@ class SardanaKernelTest(KernelTests):
                     return True
             return False
 
-        cols = output_msgs[4]["content"]["text"]
-        self.assertEqual(
-            cols, "       Name          Type   Controller   Axis\n"
-        )
         self.assertTrue(any_motor())
 
     def test_sardana_env(self):
