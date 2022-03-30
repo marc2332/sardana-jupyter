@@ -13,7 +13,7 @@ flake8_and_black:
 
 kernel_tests:
   stage: test
-  image: registry.gitlab.com/marc2332/sardana-jupyter:latest
+  image: registry.gitlab.com/sardana-org/sardana-jupyter:latest
   before_script:
     - supervisord -n &
     - sleep 10
